@@ -34,6 +34,7 @@ STYLE = {  # colour, marker, filled
     "tf_compact": (ACCENT, "^", False), "tf_medium": (ACCENT, "v", False),
     "tf_regularised": (ACCENT, "^", True), "ft_transformer": (ACCENT, "D", False),
 }
+MLP3 = ["tf_compact", "tf_medium", "tf_regularised"]
 ORDER = ["logistic_age_grade", "penalised_logistic", "random_forest", "hist_gboost",
          "tf_compact", "tf_medium", "tf_regularised"]
 
@@ -91,6 +92,7 @@ def figure1():
         y += 0.4
     fig, ax = plt.subplots(figsize=(160 * MM, 0.255 * y + 0.5))
     ax.axvline(0, color=GREY, lw=0.5, zorder=1)
+    ax.axvspan(-config.MEANINGFUL_AUROC_DELTA, config.MEANINGFUL_AUROC_DELTA, color=LIGHT, alpha=0.45, lw=0, zorder=0)
     ax.axvline(config.MEANINGFUL_AUROC_DELTA, color=INK, lw=0.5, ls=(0, (3, 2)), zorder=1)
     for t, yy in ypos.items():
         r = d.loc[t]
@@ -127,12 +129,13 @@ def figure1():
                 xytext=(-4, 2), textcoords="offset points", va="center", ha="right", fontsize=6, color=ACCENT)
     ax.annotate("without class weighting", (du.loc[first, "delta_lo"], ypos[first] + 0.17),
                 xytext=(-4, -2), textcoords="offset points", va="center", ha="right", fontsize=6, color=GREY)
-    ax.text(config.MEANINGFUL_AUROC_DELTA, 1.0, "margin 0.03", transform=tx, fontsize=6, va="bottom", ha="center")
+    ax.text(config.MEANINGFUL_AUROC_DELTA, 1.0, "+0.03", transform=tx, fontsize=6, va="bottom", ha="center")
+    ax.text(-config.MEANINGFUL_AUROC_DELTA, 1.0, "\u22120.03", transform=tx, fontsize=6, va="bottom", ha="center")
     save(fig, "figure1_decision_rule")
 
 
-# Figure 2: discrimination within strata ---------------------------------------------
-def figure2():
+# Supplementary figure S2: discrimination within strata ---------------------------------------------
+def figure_s_strata():
     p = pd.read_csv(config.TABLES / "performance_all.csv")
     strata = [("int_B_2y", "All diffuse gliomas\n2-year"), ("int_idhwt_2y", "IDH-wildtype\n2-year"),
               ("int_idhwt_1y", "IDH-wildtype\n1-year"), ("int_idhmut_5y", "IDH-mutant\n5-year"),
@@ -162,52 +165,156 @@ def figure2():
         x = (j - (len(ORDER) - 1) / 2) * w
         ax.annotate(LABELS[m], (x, sub.loc[m].auroc_lo), xytext=(0, -3), textcoords="offset points",
                     rotation=90, ha="center", va="top", fontsize=5.5, color=STYLE[m][0])
-    save(fig, "figure2_strata")
+    save(fig, "figureS2_strata")
 
 
-# Figure 3: calibration and net benefit in Gravendeel --------------------------------------
-def figure3(tag="ext_gravendeel_B_2y", stem="figure3_calibration_dca"):
-    y, mean, _, _ = load(tag)
-    dec = pd.read_csv(config.TABLES / "decision_rule.csv").set_index("setting")
-    nn = dec.loc[tag, "best_nn"]
-    models = ["penalised_logistic", "hist_gboost", nn]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(150 * MM, 66 * MM), gridspec_kw={"wspace": 0.42})
-    a.plot([0, 1], [0, 1], color=GREY, lw=0.5, ls=(0, (3, 2)))
-    curves = {m: calibration_curve(y, mean[m], 10)[:2] for m in models}
-    for m in models:
-        mp, ob = curves[m]
-        a.plot(mp, ob, color=STYLE[m][0], lw=0.8)
-        mark(a, mp, ob, m, size=2.6)
-    direct_labels(a, curves)
-    # distribution of predicted risk (penalised LR) as a rug
-    for v in mean["penalised_logistic"]:
-        a.plot([v, v], [-0.06, -0.03], color=INK, lw=0.25, alpha=0.4)
-    a.set_xlim(0, 1.0)
-    a.set_ylim(-0.07, 1.0)
-    a.set_xlabel("Predicted probability of death by 2 years")
-    a.set_ylabel("Observed proportion")
+def figure2_weighting(stem="figure2_class_weighting"):
+    c = pd.read_csv(config.TABLES / "class_weighting.csv")
+    c = c[c.setting.str.startswith("int_")]
+    fig, (a, b, cc) = plt.subplots(1, 3, figsize=(178 * MM, 60 * MM), gridspec_kw={"wspace": 0.55})
+    lim = (-3.0, 1.6)
+    a.plot(lim, lim, color=GREY, lw=0.5, ls=(0, (3, 2)))
+    a.axhline(0, color=GREY, lw=0.5)
+    for m in MLP3:
+        for v, filled in (("weighted", True), ("unweighted", False)):
+            sub = c[(c.network == m) & (c.version == v)]
+            col = ACCENT if v == "weighted" else INK
+            mk = {"tf_compact": "^", "tf_medium": "v", "tf_regularised": "D"}[m]
+            a.plot(sub.logit_train_prevalence, sub.calibration_intercept, marker=mk, ms=2.6, ls="none",
+                   mec=col, mfc=col if filled else "white", mew=0.6, zorder=3)
+    a.annotate("expected with weighting", (-1.25, -1.25), xytext=(5, -3), textcoords="offset points",
+               fontsize=5.8, color=GREY, rotation=40, ha="left", va="top", rotation_mode="anchor")
+    a.annotate("class-weighted", (0.9, 0.95), xytext=(-2, 6), textcoords="offset points", fontsize=6,
+               color=ACCENT, ha="right")
+    a.annotate("unweighted", (-2.75, 0.1), xytext=(0, 6), textcoords="offset points", fontsize=6, color=INK,
+               ha="left")
+    a.set_xlim(*lim)
+    a.set_ylim(-2.2, 1.6)
+    a.set_xlabel("Logit of event rate in training data")
+    a.set_ylabel("Calibration intercept")
     panel_label(a, "A")
-    th = np.array([t for t in config.DCA_THRESHOLDS if 0.02 <= t <= 0.85])
-    b.axvspan(*config.DCA_PLAUSIBLE, color=LIGHT, alpha=0.5, lw=0, zorder=0)
+    d = c[(c.version == "unweighted_minus_weighted") & c.network.isin(["tf_compact"])].copy()
+    er = c[(c.version == "weighted") & (c.network == "tf_compact")].set_index("setting").event_rate
+    d["event_rate"] = d.setting.map(er)
     b.axhline(0, color=GREY, lw=0.5)
-    ta = net_benefit_treat_all(y, th)
-    b.plot(th, ta, color=GREY, lw=0.6, ls=(0, (3, 2)))
-    b.annotate("Treat all", (th[np.argmin(np.abs(ta - 0.05))], 0.05), xytext=(2, 2), textcoords="offset points",
-               fontsize=6, color=GREY)
-    ends = {}
-    for m in models:
-        nb = net_benefit(y, mean[m], th)
-        b.plot(th, nb, color=STYLE[m][0], lw=0.8, ls="-" if m != "hist_gboost" else (0, (1, 1)))
-        ends[m] = nb[-1]
-    for k, m in enumerate(sorted(ends, key=ends.get)):
-        b.annotate(LABELS[m], (th[-1], ends[m]), xytext=(3, (k - 1) * 6), textcoords="offset points",
-                   fontsize=6, color=STYLE[m][0], va="center")
-    prev = float(np.mean(y))
-    b.set_ylim(-0.05, prev + 0.03)
+    for _, r in d.iterrows():
+        b.plot([r.event_rate] * 2, [r.brier_lo, r.brier_hi], color=ACCENT, lw=0.6)
+        b.plot(r.event_rate, r.brier, marker="^", ms=3, color=ACCENT, ls="none", zorder=3)
     b.set_xlim(0, 0.85)
-    b.set_xlabel("Threshold probability")
-    b.set_ylabel("Net benefit")
+    b.set_xlabel("Event rate")
+    b.set_ylabel("Difference in Brier score\n(unweighted minus weighted)")
+    b.text(0.02, 0.02, "lower without weighting", transform=b.transAxes, fontsize=6, color=INK, va="bottom")
     panel_label(b, "B")
+    y, mean, _, _ = load("int_B_1y")
+    _, mu, _, _ = load("int_B_1y", config.PREDICTIONS / "unweighted")
+    cc.plot([0, 1], [0, 1], color=GREY, lw=0.5, ls=(0, (3, 2)))
+    curves = {"penalised_logistic": calibration_curve(y, mean["penalised_logistic"], 10)[:2],
+              "tf_compact": calibration_curve(y, mean["tf_compact"], 10)[:2],
+              "tf_compact_u": calibration_curve(y, mu["tf_compact"], 10)[:2]}
+    sty = {"penalised_logistic": (INK, "o", True, "-"), "tf_compact": (ACCENT, "^", True, "-"),
+           "tf_compact_u": (ACCENT, "^", False, (0, (2, 1)))}
+    lab = {"penalised_logistic": "Penalised LR", "tf_compact": "Compact MLP, weighted",
+           "tf_compact_u": "Compact MLP, unweighted"}
+    for m, (mp, ob) in curves.items():
+        col, mk, filled, ls = sty[m]
+        cc.plot(mp, ob, color=col, lw=0.8, ls=ls)
+        cc.plot(mp, ob, marker=mk, ms=2.4, mec=col, mfc=col if filled else "white", mew=0.6, ls="none", zorder=3)
+    mp, ob = curves["tf_compact"]
+    cc.annotate(lab["tf_compact"], (mp[-3], ob[-3]), xytext=(2, -10), textcoords="offset points", fontsize=6,
+                color=ACCENT, ha="left", va="top")
+    mp, ob = curves["penalised_logistic"]
+    cc.annotate("Penalised LR and\nunweighted MLP", (mp[-2], ob[-2]), xytext=(-6, 4), textcoords="offset points",
+                fontsize=6, color=INK, ha="right", va="bottom")
+    cc.set_xlim(0, 1)
+    cc.set_ylim(0, 1)
+    cc.set_xlabel("Predicted probability of death by 1 year")
+    cc.set_ylabel("Observed proportion")
+    panel_label(cc, "C")
+    save(fig, stem)
+
+
+# Figure 3: external validation ------------------------------------------------------------------
+def figure3_external(stem="figure3_external"):
+    p = pd.read_csv(config.TABLES / "performance_all.csv")
+    tags = [("ext_gravendeel_A_2y", "Gravendeel\nset A"), ("ext_gravendeel_B_2y", "Gravendeel\nset B"),
+            ("ext_gravendeel_C_2y", "Gravendeel\nset C"), ("ext_rembrandt_B_2y", "REMBRANDT\ngrade,\nhistology"),
+            ("ext_rembrandt_C_2y", "REMBRANDT\nset C")]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(174 * MM, 66 * MM), gridspec_kw={"wspace": 0.3, "width_ratios": [1.6, 1]})
+    w = 0.135
+    for i, (t, lab) in enumerate(tags):
+        sub = p[p.setting == t].set_index("model")
+        for j, m in enumerate(ORDER):
+            x = i + (j - (len(ORDER) - 1) / 2) * w
+            r = sub.loc[m]
+            a.plot([x, x], [r.auroc_lo, r.auroc_hi], color=STYLE[m][0], lw=0.6)
+            mark(a, x, r.auroc, m)
+    sub = p[p.setting == tags[0][0]].set_index("model")
+    for j, m in enumerate(ORDER):
+        x = (j - (len(ORDER) - 1) / 2) * w
+        a.annotate(LABELS[m], (x, sub[sub.index.isin(ORDER)].auroc_lo.min() - 0.008), rotation=90,
+                   ha="center", va="top", fontsize=5.2, color=STYLE[m][0])
+    a.set_xticks(range(len(tags)))
+    a.set_xticklabels([t[1] for t in tags], fontsize=6)
+    a.tick_params(axis="x", length=0)
+    a.spines["bottom"].set_visible(False)
+    a.set_ylim(0.6, 0.92)
+    a.set_xlim(-0.6, len(tags) - 0.4)
+    a.set_ylabel("AUROC (95% CI)")
+    panel_label(a, "A")
+    y, mean, _, _ = load("ext_gravendeel_B_2y")
+    _, mu, _, _ = load("ext_gravendeel_B_2y", config.PREDICTIONS / "unweighted")
+    b.plot([0, 1], [0, 1], color=GREY, lw=0.5, ls=(0, (3, 2)))
+    curves = {"pl": calibration_curve(y, mean["penalised_logistic"], 10)[:2],
+              "w": calibration_curve(y, mean["tf_compact"], 10)[:2],
+              "u": calibration_curve(y, mu["tf_compact"], 10)[:2]}
+    sty = {"pl": (INK, "o", True, "-"), "w": (ACCENT, "^", True, "-"), "u": (ACCENT, "^", False, (0, (2, 1)))}
+    for k, (mp, ob) in curves.items():
+        col, mk, filled, ls = sty[k]
+        b.plot(mp, ob, color=col, lw=0.8, ls=ls)
+        b.plot(mp, ob, marker=mk, ms=2.4, mec=col, mfc=col if filled else "white", mew=0.6, ls="none", zorder=3)
+    mp, ob = curves["pl"]
+    b.annotate("Penalised LR", (mp[4], ob[4]), xytext=(-6, 0), textcoords="offset points", fontsize=6, color=INK,
+               ha="right", va="bottom")
+    mp, ob = curves["w"]
+    b.annotate("Compact MLP,\nweighted", (mp[-2], ob[-2]), xytext=(4, -6), textcoords="offset points", fontsize=6,
+               color=ACCENT, ha="left", va="top")
+    mp, ob = curves["u"]
+    b.annotate("unweighted", (mp[4], ob[4]), xytext=(6, -4), textcoords="offset points", fontsize=6,
+               color=ACCENT, ha="left", va="top")
+    b.set_xlim(0, 1)
+    b.set_ylim(0, 1)
+    b.set_xlabel("Predicted probability of death by 2 years")
+    b.set_ylabel("Observed proportion")
+    panel_label(b, "B")
+    save(fig, stem)
+
+
+def figure_s_dca(stem="figureS3_decision_curves"):
+    th = np.array([t for t in config.DCA_THRESHOLDS if 0.02 <= t <= 0.85])
+    fig, axes = plt.subplots(1, 2, figsize=(170 * MM, 60 * MM), gridspec_kw={"wspace": 0.6})
+    dec = pd.read_csv(config.TABLES / "decision_rule.csv").set_index("setting")
+    for ax, (tag, lab) in zip(axes, [("int_B_2y", "TCGA, internal"), ("ext_gravendeel_B_2y", "Gravendeel, external")]):
+        y, mean, _, _ = load(tag)
+        nn = dec.loc[tag, "best_nn"]
+        ax.axvspan(*config.DCA_PLAUSIBLE, color=LIGHT, alpha=0.5, lw=0, zorder=0)
+        ax.axhline(0, color=GREY, lw=0.5)
+        ta = net_benefit_treat_all(y, th)
+        ax.plot(th, ta, color=GREY, lw=0.6, ls=(0, (3, 2)))
+        ax.annotate("Treat all", (th[np.argmin(np.abs(ta - 0.03))], 0.03), xytext=(2, 2), textcoords="offset points",
+                    fontsize=6, color=GREY)
+        ends = {}
+        for m in ("penalised_logistic", "hist_gboost", nn):
+            nb = net_benefit(y, mean[m], th)
+            ax.plot(th, nb, color=STYLE[m][0], lw=0.8, ls="-" if m != "hist_gboost" else (0, (1, 1)))
+            ends[m] = nb[-1]
+        for k, m in enumerate(sorted(ends, key=ends.get)):
+            ax.annotate(LABELS[m], (th[-1], ends[m]), xytext=(3, (k - 1) * 6), textcoords="offset points",
+                        fontsize=6, color=STYLE[m][0], va="center")
+        ax.set_ylim(-0.05, float(np.mean(y)) + 0.03)
+        ax.set_xlim(0, 0.85)
+        ax.set_xlabel("Threshold probability")
+        ax.set_ylabel("Net benefit")
+        ax.text(0.0, 1.02, lab, transform=ax.transAxes, fontsize=6.5, ha="left", va="bottom")
     save(fig, stem)
 
 
@@ -235,51 +342,6 @@ def figure_s_calibration(tag="int_B_2y", stem="figureS1_calibration_internal"):
     save(fig, stem)
 
 
-def figure_s_cohorts(stem="figureS2_auroc_by_cohort"):
-    p = pd.read_csv(config.TABLES / "performance_all.csv")
-    tags = [("int_B_2y", "TCGA, internal"), ("ext_gravendeel_B_2y", "Gravendeel, external"),
-            ("ext_rembrandt_B_2y", "REMBRANDT, external")]
-    fig, axes = plt.subplots(1, 3, figsize=(170 * MM, 55 * MM), sharey=True, gridspec_kw={"wspace": 0.12})
-    for ax, (t, lab) in zip(axes, tags):
-        sub = p[p.setting == t].set_index("model")
-        for k, m in enumerate(ORDER[::-1]):
-            r = sub.loc[m]
-            ax.plot([r.auroc_lo, r.auroc_hi], [k, k], color=STYLE[m][0], lw=0.7)
-            mark(ax, r.auroc, k, m)
-        ax.text(0.0, 1.02, lab, transform=ax.transAxes, fontsize=6.5, ha="left", va="bottom")
-        ax.set_xlabel("AUROC (95% CI)")
-        ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(4))
-        ax.tick_params(axis="y", length=0)
-        ax.spines["left"].set_visible(False)
-    axes[0].set_yticks(range(len(ORDER)))
-    axes[0].set_yticklabels([LABELS[m] for m in ORDER[::-1]])
-    save(fig, stem)
-
-
-def figure_s_dca_internal(tag="int_B_2y", stem="figureS3_decision_internal"):
-    y, mean, _, _ = load(tag)
-    dec = pd.read_csv(config.TABLES / "decision_rule.csv").set_index("setting")
-    nn = dec.loc[tag, "best_nn"]
-    th = np.array([t for t in config.DCA_THRESHOLDS if 0.02 <= t <= 0.85])
-    fig, b = plt.subplots(figsize=(85 * MM, 62 * MM))
-    b.axvspan(*config.DCA_PLAUSIBLE, color=LIGHT, alpha=0.5, lw=0, zorder=0)
-    b.axhline(0, color=GREY, lw=0.5)
-    b.plot(th, net_benefit_treat_all(y, th), color=GREY, lw=0.6, ls=(0, (3, 2)))
-    ends = {}
-    for m in ("penalised_logistic", "hist_gboost", nn):
-        nb = net_benefit(y, mean[m], th)
-        b.plot(th, nb, color=STYLE[m][0], lw=0.8, ls="-" if m != "hist_gboost" else (0, (1, 1)))
-        ends[m] = nb[-1]
-    for k, m in enumerate(sorted(ends, key=ends.get)):
-        b.annotate(LABELS[m], (th[-1], ends[m]), xytext=(3, (k - 1) * 6), textcoords="offset points",
-                   fontsize=6, color=STYLE[m][0], va="center")
-    b.set_ylim(-0.05, float(np.mean(y)) + 0.03)
-    b.set_xlim(0, 0.85)
-    b.set_xlabel("Threshold probability")
-    b.set_ylabel("Net benefit")
-    save(fig, stem)
-
-
 def figure_s_learning(stem="figureS4_learning_curves"):
     h = load_json(config.METRICS / "final_network_histories.json")
     fig, axes = plt.subplots(1, 3, figsize=(170 * MM, 50 * MM), sharey=True, gridspec_kw={"wspace": 0.12})
@@ -302,10 +364,12 @@ def figure_s_learning(stem="figureS4_learning_curves"):
 
 
 if __name__ == "__main__":
+    for f in config.FIGURES.glob("figure*"):
+        f.unlink()
     figure1()
-    figure2()
-    figure3()
+    figure2_weighting()
+    figure3_external()
     figure_s_calibration()
-    figure_s_cohorts()
-    figure_s_dca_internal()
+    figure_s_strata()
+    figure_s_dca()
     figure_s_learning()

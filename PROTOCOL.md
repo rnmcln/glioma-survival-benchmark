@@ -5,6 +5,9 @@ Version 1.1 (23 November 2026) corrects data-harmonisation and implementation
 errors identified during re-analysis and adds two sensitivity analyses. The
 amendments are listed in Section 11; the design, endpoints, predictor sets,
 model catalogue and decision rule are unchanged.
+Version 1.2 (23 November 2026) adds post hoc analyses defined after the
+prespecified results were known (Section 12). They are reported as post hoc
+and do not replace any prespecified analysis or the decision rule.
 
 ## 1. Objective
 
@@ -123,3 +126,38 @@ FT-Transformer; networks trained without class weighting.
 8. IPCW weights use the Kaplan-Meier censoring distribution of the full cohort.
 9. Added: networks without class weighting, because inverse-frequency
    weighting shifts predicted probabilities away from observed risk.
+
+## 12. Post hoc analyses added in version 1.2
+
+These analyses were defined after the results of Sections 8 to 10 were known,
+in response to an internal methodological review. They are exploratory.
+
+* R1, selection-aware inference (`scripts/10_selection_equivalence.py`): the
+  selection of the best network and the best transparent model is repeated in
+  each bootstrap resample.
+* R2, fixed comparisons and equivalence (same script): each network against
+  penalised logistic regression without selection; 90% bootstrap intervals
+  compared with a margin of +/-0.03 AUROC; per-repeat differences.
+* R3, class weighting (`scripts/11_class_weighting.py`): calibration intercept
+  against the logit of the training event rate; analytic prior-shift
+  correction using training-fold event rates; net benefit with and without
+  weighting; decision-curve differences after intercept updating of both
+  models in the external cohorts.
+* R4a, covariate-dependent IPCW (`scripts/12_censoring_weights.py`): Cox model
+  for the censoring hazard on predictor set B.
+* R4b, full-cohort evaluation (`scripts/13_full_cohort.py`): all TCGA patients,
+  folds stratified by 24-month status; binary models and survival models
+  (penalised Cox; Cox-loss multilayer perceptrons with the compact and
+  regularised architectures) evaluated by inverse-probability-of-censoring
+  weighted time-dependent AUROC and Brier score at 24 months; external
+  application to all Gravendeel and REMBRANDT patients.
+* R5, nested tuning of both model classes (`scripts/14_nested_tuning.py`):
+  first three repeats of the primary cross-validation, inner 3-fold selection
+  by AUROC; penalised logistic regression grid C x L1 ratio (12 points);
+  multilayer perceptron grid hidden layers x dropout x L2 (8 points), trained
+  without class weighting.
+* R6, initialisation variability (`scripts/15_seed_variability.py`): five
+  seeds per network on fixed folds.
+* R7, IDH imputation in Gravendeel (`scripts/16_gravendeel_idh.py`): stored
+  external predictions re-evaluated separately in patients with and without
+  recorded IDH status.

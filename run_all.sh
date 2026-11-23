@@ -13,4 +13,7 @@ python scripts/04_external_validation.py --unweighted
 python scripts/05_survival.py
 python scripts/06_sensitivity.py
 python scripts/07_tables.py
+for s in 10_selection_equivalence 11_class_weighting 12_censoring_weights 13_full_cohort 14_nested_tuning 15_seed_variability 16_gravendeel_idh; do
+  python scripts/$s.py
+done
 python scripts/08_figures.py

@@ -12,7 +12,7 @@ the analysis plan and its amendments are in [`PROTOCOL.md`](PROTOCOL.md).
 
 ```
 src/        harmonisation, endpoints, preprocessing, models, cross-validation, evaluation
-scripts/    numbered pipeline steps (01-09)
+scripts/    numbered pipeline steps (01-09 prespecified; 10-16 post hoc)
 data/       raw/ (downloaded), processed/ (harmonised cohorts), dictionary/ (checksums)
 results/    created by the pipeline: predictions, metrics, tables, figures
 ```
@@ -46,10 +46,20 @@ or step by step:
 | 7 | `07_tables.py` | metrics, bootstrap intervals, decision rule, decision curves |
 | 8 | `08_figures.py` | figures |
 | 9 | `09_provenance.py` | SHA-256 manifest of raw inputs |
+| 10 | `10_selection_equivalence.py` | selection-aware intervals, fixed comparisons, equivalence, per-repeat differences (post hoc R1, R2) |
+| 11 | `11_class_weighting.py` | class weighting, event rate and calibration; prior-shift correction; decision curves after intercept updating (R3) |
+| 12 | `12_censoring_weights.py` | covariate-dependent censoring weights (R4) |
+| 13 | `13_full_cohort.py` | all patients, time-dependent AUROC and IPCW Brier; Cox-loss networks (R4) |
+| 14 | `14_nested_tuning.py` | nested tuning of penalised regression and networks (R5) |
+| 15 | `15_seed_variability.py` | network initialisation variability (R6) |
+| 16 | `16_gravendeel_idh.py` | Gravendeel by availability of IDH status (R7) |
+
+Steps 10 to 16 are post hoc analyses (protocol version 1.2, Section 12). Run
+them after step 7; then re-run step 8 for the figures.
 
 Seeds are fixed (`src/config.py`, seed 20260628) and TensorFlow runs
-single-threaded with deterministic operations. A full run takes about two to
-three hours on two CPU cores. Resampling depth can be reduced for a quick check
+single-threaded with deterministic operations. A full run takes about four to
+five hours on two CPU cores. Resampling depth can be reduced for a quick check
 with `GSB_CV_REPEATS_PRIMARY`, `GSB_CV_REPEATS_SECONDARY` and `GSB_N_BOOTSTRAP`.
 
 ## Data

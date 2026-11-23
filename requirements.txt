@@ -9,3 +9,4 @@ requests==2.34.2
 rdata==0.11.2
 tensorflow-cpu==2.17.1
 keras==3.12.4
+scikit-survival==0.23.1
