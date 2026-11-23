@@ -1,0 +1,11 @@
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.5.2
+statsmodels==0.15.0
+lifelines==0.30.0
+matplotlib==3.10.9
+requests==2.34.2
+rdata==0.11.2
+tensorflow-cpu==2.17.1
+keras==3.12.4

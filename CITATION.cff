@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "glioma-survival-benchmark: transparent versus neural-network models for overall-survival prediction in public glioma data"
+version: 1.1.0
+date-released: "2026-11-23"
+license: MIT
+repository-code: "https://github.com/rnmcln/glioma-survival-benchmark"
+authors:
+  - family-names: "Lawson McLean"
+    given-names: "Aaron"
+    orcid: "https://orcid.org/0000-0001-5528-6905"
+    affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
+  - family-names: "Neumeister"
+    given-names: "Anne"
+    affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
+  - family-names: "Meier"
+    given-names: "Tom"
+    affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
+  - family-names: "Kahr"
+    given-names: "Julian"
+    affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
+  - family-names: "Senft"
+    given-names: "Christian"
+    affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
+keywords: [glioma, survival prediction, clinical prediction models, neural networks, calibration, external validation]

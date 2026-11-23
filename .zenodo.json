@@ -1,0 +1,39 @@
+{
+  "title": "glioma-survival-benchmark: transparent versus neural-network models for overall-survival prediction in public glioma data",
+  "upload_type": "software",
+  "version": "1.1.0",
+  "license": "MIT",
+  "description": "Analysis code for a benchmark of transparent regression, standard machine-learning and TensorFlow neural-network models for fixed-horizon overall-survival prediction in adult diffuse glioma, developed in TCGA and externally validated in Gravendeel and REMBRANDT. Includes harmonisation of the public GlioVis data objects, repeated cross-validation, external validation, calibration and decision-curve analysis, time-to-event models and sensitivity analyses.",
+  "creators": [
+    {
+      "name": "Lawson McLean, Aaron",
+      "affiliation": "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena, Germany",
+      "orcid": "0000-0001-5528-6905"
+    },
+    {
+      "name": "Neumeister, Anne",
+      "affiliation": "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena, Germany"
+    },
+    {
+      "name": "Meier, Tom",
+      "affiliation": "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena, Germany"
+    },
+    {
+      "name": "Kahr, Julian",
+      "affiliation": "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena, Germany"
+    },
+    {
+      "name": "Senft, Christian",
+      "affiliation": "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena, Germany"
+    }
+  ],
+  "keywords": [
+    "glioma",
+    "survival prediction",
+    "clinical prediction models",
+    "neural networks",
+    "calibration",
+    "external validation",
+    "TCGA"
+  ]
+}
