@@ -1,9 +1,9 @@
 """Neural-network estimators used only in the post hoc revision analyses
-(PROTOCOL.md, section 12). The prespecified estimators are in models.py and
+(PROTOCOL.md, section 12). The original estimators are in models.py and
 are not modified.
 
 ConfigurableMLP: a multilayer perceptron with the same training procedure as
-the prespecified networks (Adam, binary cross-entropy, batch size 64, up to 200
+the original networks (Adam, binary cross-entropy, batch size 64, up to 200
 epochs, early stopping on a stratified 20% validation split, patience 20) but
 with architecture and regularisation given as arguments, for nested tuning.
 

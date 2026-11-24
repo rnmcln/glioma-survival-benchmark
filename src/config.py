@@ -1,4 +1,4 @@
-"""Paths, seeds and prespecified analysis settings.
+"""Paths, seeds and analysis settings.
 
 Every analytical choice that is fixed before results are inspected is declared
 here. PROTOCOL.md describes the same choices in prose.

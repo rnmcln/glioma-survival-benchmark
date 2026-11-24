@@ -1,7 +1,7 @@
 """Post hoc analyses R1 and R2 (PROTOCOL.md, section 12), computed from the
 stored out-of-fold and external predictions; no model is refitted.
 
-R1, selection-aware inference. The prespecified rule compares the best of
+R1, selection-aware inference. The planned rule compares the best of
 three networks with the best of two transparent models, each chosen by point
 AUROC. Here the selection is repeated within each of the 2000 shared bootstrap
 resamples, so that the interval reflects the variability of the selection.

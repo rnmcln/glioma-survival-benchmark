@@ -17,6 +17,7 @@ from src.cv import load
 from src.evaluation import calibration_curve, net_benefit, net_benefit_treat_all
 from src.models import LABELS
 from src.utils import load_json
+from lifelines import KaplanMeierFitter
 
 INK, ACCENT, GREY, LIGHT = "#2E3440", "#5E81AC", "#A3ABB9", "#D8DEE9"
 plt.rcParams.update({
@@ -74,7 +75,7 @@ def panel_label(ax, s, x=-0.02, y=1.02):
 
 
 # Figure 1: decision-rule forest ------------------------------------------------
-def figure1():
+def figure_s_decision_rule():
     d = pd.read_csv(config.TABLES / "decision_rule.csv")
     du = pd.read_csv(config.TABLES / "decision_rule_unweighted.csv").set_index("setting")
     groups = [("Internal validation, TCGA", [s for s in d.setting if s.startswith("int_") and not
@@ -125,13 +126,13 @@ def figure1():
         ax.text(1.15, yy, "met" if r.criterion_met else "not met", transform=ax.get_yaxis_transform(),
                 ha="left", va="center", fontsize=6.5)
     first = list(ypos)[0]
-    ax.annotate("class-weighted (prespecified)", (d.loc[first, "delta_lo"], ypos[first] - 0.13),
+    ax.annotate("class-weighted (planned)", (d.loc[first, "delta_lo"], ypos[first] - 0.13),
                 xytext=(-4, 2), textcoords="offset points", va="center", ha="right", fontsize=6, color=ACCENT)
     ax.annotate("without class weighting", (du.loc[first, "delta_lo"], ypos[first] + 0.17),
                 xytext=(-4, -2), textcoords="offset points", va="center", ha="right", fontsize=6, color=GREY)
     ax.text(config.MEANINGFUL_AUROC_DELTA, 1.0, "+0.03", transform=tx, fontsize=6, va="bottom", ha="center")
     ax.text(-config.MEANINGFUL_AUROC_DELTA, 1.0, "\u22120.03", transform=tx, fontsize=6, va="bottom", ha="center")
-    save(fig, "figure1_decision_rule")
+    save(fig, "figureS6_decision_rule")
 
 
 # Supplementary figure S2: discrimination within strata ---------------------------------------------
@@ -168,7 +169,7 @@ def figure_s_strata():
     save(fig, "figureS2_strata")
 
 
-def figure2_weighting(stem="figure2_class_weighting"):
+def figure3_weighting(stem="figure3_class_weighting"):
     c = pd.read_csv(config.TABLES / "class_weighting.csv")
     c = c[c.setting.str.startswith("int_")]
     fig, (a, b, cc) = plt.subplots(1, 3, figsize=(178 * MM, 60 * MM), gridspec_kw={"wspace": 0.55})
@@ -193,17 +194,22 @@ def figure2_weighting(stem="figure2_class_weighting"):
     a.set_xlabel("Logit of event rate in training data")
     a.set_ylabel("Calibration intercept")
     panel_label(a, "A")
-    d = c[(c.version == "unweighted_minus_weighted") & c.network.isin(["tf_compact"])].copy()
-    er = c[(c.version == "weighted") & (c.network == "tf_compact")].set_index("setting").event_rate
-    d["event_rate"] = d.setting.map(er)
-    b.axhline(0, color=GREY, lw=0.5)
-    for _, r in d.iterrows():
-        b.plot([r.event_rate] * 2, [r.brier_lo, r.brier_hi], color=ACCENT, lw=0.6)
-        b.plot(r.event_rate, r.brier, marker="^", ms=3, color=ACCENT, ls="none", zorder=3)
-    b.set_xlim(0, 0.85)
-    b.set_xlabel("Event rate")
-    b.set_ylabel("Difference in Brier score\n(unweighted minus weighted)")
-    b.text(0.02, 0.02, "lower without weighting", transform=b.transAxes, fontsize=6, color=INK, va="bottom")
+    rl = pd.read_csv(config.TABLES / "class_weighting_risk_levels.csv")
+    b.plot([0, 0.6], [0, 0.6], color=GREY, lw=0.5, ls=(0, (3, 2)))
+    hz = {"int_B_1y": ("12 months", "^", 0.0), "int_B_2y": ("24 months", "o", 0.006), "int_B_5y": ("60 months", "s", 0.012)}
+    for tag, (lab_, mk, off) in hz.items():
+        sub = rl[(rl.setting == tag) & (rl.n_patients >= 5)]
+        x = sub.unweighted_level.values + off
+        b.vlines(x, sub.weighted_q1, sub.weighted_q3, color=ACCENT, lw=0.6)
+        b.plot(x, sub.weighted_median, marker=mk, ms=3, ls="-", lw=0.6, color=ACCENT, mfc="white" if tag == "int_B_5y" else ACCENT)
+        last = sub.iloc[-1]
+        b.annotate(lab_, (last.unweighted_level + off, last.weighted_median), xytext=(4, 0), textcoords="offset points",
+                   fontsize=6, color=ACCENT, va="center")
+    b.set_xlim(0, 0.6)
+    b.set_ylim(0, 0.8)
+    b.set_xticks([0.1, 0.2, 0.4])
+    b.set_xlabel("Predicted risk without class weighting")
+    b.set_ylabel("Predicted risk with class weighting")
     panel_label(b, "B")
     y, mean, _, _ = load("int_B_1y")
     _, mu, _, _ = load("int_B_1y", config.PREDICTIONS / "unweighted")
@@ -234,7 +240,7 @@ def figure2_weighting(stem="figure2_class_weighting"):
 
 
 # Figure 3: external validation ------------------------------------------------------------------
-def figure3_external(stem="figure3_external"):
+def figure_s_external(stem="figureS5_external_binary"):
     p = pd.read_csv(config.TABLES / "performance_all.csv")
     tags = [("ext_gravendeel_A_2y", "Gravendeel\nset A"), ("ext_gravendeel_B_2y", "Gravendeel\nset B"),
             ("ext_gravendeel_C_2y", "Gravendeel\nset C"), ("ext_rembrandt_B_2y", "REMBRANDT\ngrade,\nhistology"),
@@ -318,6 +324,153 @@ def figure_s_dca(stem="figureS3_decision_curves"):
     save(fig, stem)
 
 
+# Figure 1: primary survival comparison ---------------------------------------------------------------
+LBL = {"cox_mlp - cox_flexible": "Network vs flexible Cox", "cox_mlp - cox_linear": "Network vs linear Cox",
+       "cox_flexible - cox_linear": "Flexible vs linear Cox"}
+
+
+def figure1_survival(stem="figure1_survival_comparison"):
+    d = pd.read_csv(config.TABLES / "survival_primary_differences.csv")
+    e = pd.read_csv(config.TABLES / "survival_external_differences.csv")
+    e = e[(e.idh_handling == "mode") & (e.subset == "all")]
+    slots = [("TCGA, 12 months", "int", "12"), ("TCGA, 24 months", "int", "24"), ("TCGA, 60 months", "int", "60"),
+             ("TCGA, Harrell's C", "int", "c"), ("Gravendeel, 24 months", "gravendeel", "24"),
+             ("REMBRANDT, 24 months", "rembrandt", "24")]
+
+    def get(comp, src, h, kind):
+        if h == "c":
+            if kind == "brier":
+                return None
+            met = "harrell_c"
+        else:
+            met = f"{'td_auc' if kind == 'disc' else 'brier'}_{h}"
+        if src == "int":
+            r = d[(d.comparison == comp) & (d.metric == met)]
+        else:
+            r = e[(e.target == src) & (e.comparison == comp) & (e.metric == met)]
+        return None if r.empty else r.iloc[0]
+    fig, axes = plt.subplots(1, 2, figsize=(174 * MM, 100 * MM), sharey=True, gridspec_kw={"wspace": 0.08})
+    ypos, heads, y = [], [], 0
+    for comp in LBL:
+        heads.append((y, LBL[comp]))
+        y += 1
+        for lab, src, h in slots:
+            ypos.append((comp, lab, src, h, y))
+            y += 1
+        y += 0.5
+    for ax, kind, xl in ((axes[0], "disc", "Difference in time-dependent AUROC or Harrell's C"),
+                         (axes[1], "brier", "Difference in IPCW Brier score")):
+        for comp, lab, src, h, yy in ypos:
+            r = get(comp, src, h, kind)
+            if r is None:
+                continue
+            ext = src != "int"
+            col = INK if ext else ACCENT
+            ax.plot([r.lo, r.hi], [yy, yy], color=col, lw=0.8)
+            ax.plot(r.delta, yy, marker="o", ms=3, color=col, mfc="white" if ext else col, mew=0.7, ls="none", zorder=3)
+        ax.axvline(0, color=GREY, lw=0.5)
+        ax.set_xlabel(xl)
+        ax.set_ylim(y - 0.3, -0.8)
+        ax.tick_params(axis="y", length=0)
+        ax.spines["left"].set_visible(False)
+    for yy, h in heads:
+        axes[0].text(-0.62, yy, h, transform=axes[0].get_yaxis_transform(), ha="left", va="center", fontsize=6.5,
+                     style="italic")
+    axes[0].set_yticks([p[-1] for p in ypos])
+    axes[0].set_yticklabels([p[1] for p in ypos])
+    axes[1].text(0.02, 0.005, "negative: lower error for the first model", transform=axes[1].transAxes, fontsize=5.8,
+                 color=INK)
+    panel_label(axes[0], "A")
+    panel_label(axes[1], "B")
+    save(fig, stem)
+
+
+# Figure 2: discrimination across and within molecular groups ------------------------------------------
+def figure2_heterogeneity(stem="figure2_diagnostic_heterogeneity"):
+    pr = pd.read_csv(config.TABLES / "survival_group_pairs.csv").set_index("model")
+    wg = pd.read_csv(config.TABLES / "survival_within_group.csv")
+    gr = pd.read_csv(config.TABLES / "survival_groups.csv")
+    models = [("group_only", "Molecular group only"), ("age_and_group", "Age and molecular group"),
+              ("cox_linear", "Linear Cox"), ("cox_flexible", "Flexible Cox"), ("cox_mlp", "Network")]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(174 * MM, 64 * MM), gridspec_kw={"wspace": 0.55, "width_ratios": [1.1, 1]})
+    cols = [("c_between", "Between groups"), ("c_overall", "All pairs"), ("c_within", "Within groups")]
+    for k, (m, lab) in enumerate(models[::-1]):
+        for j, (c, _) in enumerate(cols):
+            v = pr.loc[m, c]
+            col = ACCENT if m in ("cox_mlp",) else (GREY if m in ("group_only", "age_and_group") else INK)
+            a.plot(v, k, marker=["s", "o", "D"][j], ms=3.2, color=col, mfc="white" if j == 1 else col, ls="none")
+        a.plot([pr.loc[m, "c_within"], pr.loc[m, "c_between"]], [k, k], color=LIGHT, lw=1.5, zorder=0)
+    a.set_yticks(range(len(models)))
+    a.set_yticklabels([lab for _, lab in models[::-1]])
+    top = len(models) - 1
+    for j, (c, lab) in enumerate(cols):
+        a.annotate(lab, (pr.loc[models[0][0], c], top), xytext=((3, 7) if c == "c_overall" else (0, 7)),
+                   textcoords="offset points", ha=("right" if c == "c_overall" else "center"), fontsize=6, color=INK)
+    a.axvline(0.5, color=GREY, lw=0.5, ls=(0, (3, 2)))
+    a.set_xlim(0.4, 1.0)
+    a.set_ylim(-0.6, top + 0.9)
+    a.set_xlabel("Harrell's C, TCGA cross-validation")
+    a.tick_params(axis="y", length=0)
+    a.spines["left"].set_visible(False)
+    panel_label(a, "A")
+    groups = [("IDH-wildtype", "idhwt", 24.0, "IDH-wildtype\n24 months"),
+              ("IDH-mutant, non-codeleted", "idhmut_noncodel", 60.0, "IDH-mutant,\nnon-codeleted\n60 months")]
+    procs = [("cox_linear", "Linear Cox", INK, "o"), ("cox_flexible", "Flexible Cox", INK, "s"), ("cox_mlp", "Network", ACCENT, "^")]
+    for i, (g, key, h, lab) in enumerate(groups):
+        whole = gr[(gr.group == g) & (gr.horizon == h)].iloc[0]
+        within = wg[(wg.group == key) & (wg.row == "model")].set_index("model")
+        for j, (m, ml, col, mk) in enumerate(procs):
+            x = i + (j - 1) * 0.12
+            b.plot(x - 0.03, whole[f"td_auc_{m}"], marker=mk, ms=3, color=col, mfc="white", mew=0.7, ls="none")
+            b.plot(x + 0.03, within.loc[m, "td_auc"], marker=mk, ms=3, color=col, ls="none")
+    b.set_xticks(range(len(groups)))
+    b.set_xticklabels([g[3] for g in groups], fontsize=6.5)
+    b.tick_params(axis="x", length=0)
+    b.spines["bottom"].set_visible(False)
+    b.axhline(0.5, color=GREY, lw=0.5, ls=(0, (3, 2)))
+    b.set_ylim(0.45, 0.8)
+    b.set_xlim(-0.5, len(groups) - 0.5)
+    b.set_ylabel("Time-dependent AUROC within group")
+    b.text(0.02, 0.97, "open: developed in all patients\nfilled: developed within the group\n"
+           "circle, linear Cox; square, flexible Cox;\ntriangle, network",
+           transform=b.transAxes, fontsize=5.8, va="top", color=INK)
+    b.set_ylim(0.40, 0.85)
+    panel_label(b, "B")
+    save(fig, stem)
+
+
+def figure_s_survival_calibration(stem="figureS7_survival_calibration"):
+    from src.harmonise import load_cohort
+    tcga = load_cohort("tcga", with_expr=False).reset_index(drop=True)
+    sd = config.PREDICTIONS / "survival"
+    fig, axes = plt.subplots(1, 2, figsize=(150 * MM, 66 * MM), gridspec_kw={"wspace": 0.35})
+    sty = {"cox_linear": (INK, "o", "Linear Cox"), "cox_flexible": (GREY, "s", "Flexible Cox"), "cox_mlp": (ACCENT, "^", "Network")}
+    z0 = np.load(sd / "internal_r0.npz")
+    zg = np.load(sd / "external_gravendeel.npz")
+    g = load_cohort("gravendeel", with_expr=False).reset_index(drop=True)
+    for ax, (d, getr, lab) in zip(axes, [(tcga, lambda m: z0[f"risk__{m}"][:, 1], "TCGA, first repeat"),
+                                         (g, lambda m: zg[f"risk__{m}__mode"][:, 1], "Gravendeel")]):
+        ax.plot([0, 1], [0, 1], color=GREY, lw=0.5, ls=(0, (3, 2)))
+        for m, (col, mk, nm) in sty.items():
+            r = getr(m)
+            order = np.argsort(r, kind="mergesort")
+            px, ob = [], []
+            for bidx in np.array_split(order, 8):
+                km = KaplanMeierFitter().fit(d.os_months.values[bidx], d.os_event.values[bidx])
+                px.append(r[bidx].mean())
+                ob.append(1 - float(km.survival_function_at_times(24.0).iloc[0]))
+            ax.plot(px, ob, color=col, lw=0.8, marker=mk, ms=2.6)
+            k = list(sty).index(m)
+            ax.plot(0.60, 0.20 - 0.07 * k, marker=mk, ms=2.6, color=col, transform=ax.transAxes, clip_on=False)
+            ax.text(0.63, 0.20 - 0.07 * k, nm, transform=ax.transAxes, fontsize=6, color=col, va="center")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.set_xlabel("Predicted risk of death by 24 months")
+        ax.set_ylabel("Kaplan-Meier risk by 24 months")
+        ax.text(0.0, 1.02, lab, transform=ax.transAxes, fontsize=6.5)
+    save(fig, stem)
+
+
 # Supplementary figures -------------------------------------------------------------------
 def figure_s_calibration(tag="int_B_2y", stem="figureS1_calibration_internal"):
     y, mean, _, _ = load(tag)
@@ -366,10 +519,13 @@ def figure_s_learning(stem="figureS4_learning_curves"):
 if __name__ == "__main__":
     for f in config.FIGURES.glob("figure*"):
         f.unlink()
-    figure1()
-    figure2_weighting()
-    figure3_external()
+    figure1_survival()
+    figure2_heterogeneity()
+    figure3_weighting()
     figure_s_calibration()
     figure_s_strata()
     figure_s_dca()
     figure_s_learning()
+    figure_s_external()
+    figure_s_decision_rule()
+    figure_s_survival_calibration()

@@ -16,4 +16,10 @@ python scripts/07_tables.py
 for s in 10_selection_equivalence 11_class_weighting 12_censoring_weights 13_full_cohort 14_nested_tuning 15_seed_variability 16_gravendeel_idh; do
   python scripts/$s.py
 done
+python scripts/17_survival_primary.py --repeats 0 1 2 3 4 --external
+python scripts/17_survival_primary.py --criterion pll --repeats 0 1 2 3 4 --external
+python scripts/18_survival_evaluation.py
+SURV_CRITERION=pll python scripts/18_survival_evaluation.py
+python scripts/19_within_group.py
+python scripts/20_binary_additions.py
 python scripts/08_figures.py

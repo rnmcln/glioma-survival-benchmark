@@ -49,7 +49,7 @@ def missing_fraction(df: pd.DataFrame, f: str) -> float:
 
 
 def resolve_features(feature_set: str, *cohorts: pd.DataFrame):
-    """Apply the prespecified missingness rule across all cohorts involved.
+    """Apply the planned missingness rule across all cohorts involved.
 
     A variable is used only if it is recorded in every cohort and its missing
     fraction is at most the threshold in each, unless it is essential (age,

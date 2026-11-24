@@ -2,7 +2,7 @@
 initialisation alone.
 
 Primary setting (TCGA, set B, 24 months), folds of the first cross-validation
-repeat held fixed; the three prespecified networks (class-weighted) are
+repeat held fixed; the three planned networks (class-weighted) are
 refitted with five different seeds per fold. The spread of out-of-fold AUROC
 and of its difference from penalised logistic regression (same folds) isolates
 training stochasticity from resampling variability.

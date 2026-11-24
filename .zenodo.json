@@ -1,9 +1,9 @@
 {
-  "title": "glioma-survival-benchmark: transparent versus neural-network models for overall-survival prediction in public glioma data",
+  "title": "glioma-survival-benchmark: neural networks versus penalised regression for survival prediction in public glioma data",
   "upload_type": "software",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "license": "MIT",
-  "description": "Analysis code for a benchmark of transparent regression, standard machine-learning and TensorFlow neural-network models for fixed-horizon overall-survival prediction in adult diffuse glioma, developed in TCGA and externally validated in Gravendeel and REMBRANDT. Includes harmonisation of the public GlioVis data objects, repeated cross-validation, external validation, calibration and decision-curve analysis, time-to-event models and sensitivity analyses.",
+  "description": "Analysis code for a benchmark of penalised regression and neural networks for overall-survival prediction in adult diffuse glioma. The primary analysis compares linear and flexible penalised Cox regression with Cox-loss neural networks in all TCGA patients with nested tuning, evaluates discrimination within and between molecular groups, and transports the models to Gravendeel and REMBRANDT. Includes harmonisation of the public GlioVis data objects, the original binary benchmark, calibration and class-weighting analyses.",
   "creators": [
     {
       "name": "Lawson McLean, Aaron",

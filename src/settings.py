@@ -1,4 +1,4 @@
-"""The 18 prespecified evaluation settings (13 internal, 5 external) plus the
+"""The 18 evaluation settings of the original analysis (13 internal, 5 external) plus the
 REMBRANDT clinical set A, which reduces to the same predictors as set B and is
 therefore not counted separately."""
 from __future__ import annotations

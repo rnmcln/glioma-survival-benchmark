@@ -1,13 +1,32 @@
 # Analysis protocol
 
-Version 1.0 was fixed on 28 June 2026, before model results were inspected.
-Version 1.1 (23 November 2026) corrects data-harmonisation and implementation
-errors identified during re-analysis and adds two sensitivity analyses. The
-amendments are listed in Section 11; the design, endpoints, predictor sets,
-model catalogue and decision rule are unchanged.
-Version 1.2 (23 November 2026) adds post hoc analyses defined after the
-prespecified results were known (Section 12). They are reported as post hoc
-and do not replace any prespecified analysis or the decision rule.
+Version history and status
+
+* Version 1.0, dated 28 June 2026, is an internal analysis plan. It was first
+  committed to a version-controlled repository (rnmcln/glioma-nn-penalty) on
+  29 June 2026 together with the analysis code and initial results, so its
+  precedence over the inspection of results cannot be verified independently.
+  It specified the binary 24-month endpoint with 12- and 60-month horizons,
+  predictor sets A to C, the model catalogue (including three class-weighted
+  multilayer perceptrons), repeated cross-validation, external validation in
+  Gravendeel and REMBRANDT on shared predictors, grade III-IV and grade II
+  subgroups, complete-case analysis, Cox models as a secondary benchmark,
+  decision curves and the decision rule (Section 9). The original code also
+  contained analyses that the plan does not list: IDH-wildtype, IDH-mutant and
+  glioblastoma strata, a 6-month landmark analysis, inverse-probability-of-
+  censoring weighting, a feature-tokeniser transformer and nested tuning of
+  penalised logistic regression. Sections 1 to 10 below describe version 1.0
+  together with these analyses as implemented in the corrected code.
+* Version 1.1 (23 November 2026) corrects data-harmonisation and
+  implementation errors and adds networks trained without class weighting,
+  expression-scaling and intercept-updating analyses (Section 11).
+* Version 1.2 (23 November 2026) adds post hoc analyses R1 to R7 (Section 12).
+* Version 2.0 (23 November 2026) was defined after the results of versions 1.0
+  to 1.2 were known, in response to methodological review. It makes a
+  time-to-event analysis of all patients the primary analysis, adds a flexible
+  regression comparator and analyses of diagnostic heterogeneity, missing data
+  and class weighting, and retains the binary analysis as a secondary
+  benchmark (Section 13). No earlier analysis is removed or redefined.
 
 ## 1. Objective
 
@@ -96,7 +115,7 @@ network is considered to improve prediction only if all three conditions hold:
 AUROC difference at least 0.03; Brier score not higher; calibration slope
 between 0.8 and 1.25.
 
-## 10. Sensitivity analyses
+## 10. Sensitivity and additional analyses
 
 1- and 5-year horizons; grade III-IV and grade II subgroups; complete cases;
 6-month landmark; IDH-wildtype, IDH-mutant and glioblastoma strata; IPCW
@@ -114,7 +133,7 @@ FT-Transformer; networks trained without class weighting.
    median grade or kept as recorded; grade is now set to IV.
 3. The adult-only criterion is now applied (2 TCGA and 2 Gravendeel patients
    younger than 18 years excluded).
-4. The prespecified 40% missingness rule is now applied; it removes 1p/19q
+4. The planned 40% missingness rule is now applied; it removes 1p/19q
    status (50% missing) from Gravendeel external validation.
 5. Neural-network implementation: networks are now re-initialised with a new
    optimiser at every fit (previously weights were reset but optimiser state
@@ -161,3 +180,46 @@ in response to an internal methodological review. They are exploratory.
 * R7, IDH imputation in Gravendeel (`scripts/16_gravendeel_idh.py`): stored
   external predictions re-evaluated separately in patients with and without
   recorded IDH status.
+
+## 13. Version 2.0: revised primary analysis and revision analyses
+
+Rationale. The binary endpoint excludes 260 of 664 TCGA patients censored
+before 24 months, who differ systematically from labelled patients; the
+natural task is survival prediction with right censoring. The original
+comparator was additive and linear in age and grade; model selection in the
+binary benchmark used evaluation data; and the original uncertainty
+intervals conditioned on fitted predictions.
+
+S1, primary analysis (`scripts/17_survival_primary.py`, evaluated by
+`scripts/18_survival_evaluation.py`). All TCGA patients; predictor set B;
+5 repeats of 5-fold cross-validation stratified by 24-month status (folds as
+in R4). Procedures: elastic-net Cox (L1 ratio 0.5; penalty in {0.01, 0.03,
+0.1, 0.3, 1, 3}); ridge Cox on the flexible design (`src/flexible.py`: age
+restricted cubic spline with four knots, categorical grade, age x IDH-wildtype
+and grade x IDH-wildtype interactions; penalty in {0.03, 0.1, 0.3, 1, 3, 10});
+Cox-loss multilayer perceptron (four configurations). Selection by inner
+3-fold cross-validation within the training folds using Harrell's C. Measures
+at 12, 24 and 60 months: time-dependent AUROC (Uno), IPCW Brier score,
+observed/expected ratio, calibration slope; Harrell's C. Estimand: single-model
+performance averaged over repeats; uncertainty pooled over repeat-specific
+bootstrap resamples (300 per repeat). External: common-predictor transport to
+Gravendeel and REMBRANDT; IDH imputation by mode (original) and by a
+TCGA-trained model; IDH-recorded subset. Sensitivity analysis, added after the
+primary results showed calibration slopes above 1 for the penalised Cox
+models: selection by the partial log-likelihood per event of the inner
+validation folds, with risk sets formed within each fold (`--criterion pll`).
+
+S2, diagnostic heterogeneity (`scripts/18_survival_evaluation.py`,
+`scripts/19_within_group.py`). Molecular groups from IDH and 1p/19q status;
+Harrell's C split into within-group and between-group pairs; reference Cox
+models with molecular group alone and with age; within-group evaluation of
+models developed in all patients; within-group development (IDH-wildtype and
+IDH-mutant non-codeleted groups; 3 repeats of 5-fold cross-validation).
+
+B1 to B8, binary benchmark (`scripts/20_binary_additions.py`): flexible
+penalised logistic regression; pooled repeat-bootstrap intervals; decision-rule
+margins of 0.01 and 0.02; external calibration intervals and cross-fitted
+intercept updating; Gravendeel IDH characteristics, pair decomposition and
+model-based imputation; class weighting at fixed risk levels; inductive
+within-sample rank transformation of expression data; network parameter
+counts.

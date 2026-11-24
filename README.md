@@ -1,18 +1,20 @@
 # glioma-survival-benchmark
 
-Code for a benchmark of transparent regression models, standard machine-learning
-models and TensorFlow neural networks for fixed-horizon overall-survival
-prediction in adult diffuse glioma, using public structured data. Models are
-developed in TCGA (lower-grade glioma and glioblastoma) and evaluated by
-repeated cross-validation and by external validation in the Gravendeel and
-REMBRANDT cohorts. Results are summarised in [`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md);
+Code for a benchmark of penalised regression and neural networks for
+overall-survival prediction in adult diffuse glioma, using public structured
+data. The primary analysis (version 2.0) compares linear and flexible penalised
+Cox regression with Cox-loss neural networks in all TCGA patients (lower-grade
+glioma and glioblastoma), with hyperparameter selection nested within the
+training folds, and transports the models to the Gravendeel and REMBRANDT
+cohorts. The original fixed-horizon binary benchmark (logistic regression,
+tree ensembles and multilayer perceptrons) is retained as a secondary analysis. Results are summarised in [`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md);
 the analysis plan and its amendments are in [`PROTOCOL.md`](PROTOCOL.md).
 
 ## Contents
 
 ```
 src/        harmonisation, endpoints, preprocessing, models, cross-validation, evaluation
-scripts/    numbered pipeline steps (01-09 prespecified; 10-16 post hoc)
+scripts/    numbered pipeline steps (01-09 original analysis; 10-16 post hoc, version 1.2; 17-20 version 2.0)
 data/       raw/ (downloaded), processed/ (harmonised cohorts), dictionary/ (checksums)
 results/    created by the pipeline: predictions, metrics, tables, figures
 ```
@@ -53,13 +55,18 @@ or step by step:
 | 14 | `14_nested_tuning.py` | nested tuning of penalised regression and networks (R5) |
 | 15 | `15_seed_variability.py` | network initialisation variability (R6) |
 | 16 | `16_gravendeel_idh.py` | Gravendeel by availability of IDH status (R7) |
+| 17 | `17_survival_primary.py [--criterion pll]` | primary survival analysis: tuned linear and flexible Cox and Cox-loss networks, internal and external (S1) |
+| 18 | `18_survival_evaluation.py` | survival metrics, paired differences, proportional hazards, molecular-group decomposition (S1, S2); set `SURV_CRITERION=pll` for the sensitivity analysis |
+| 19 | `19_within_group.py` | models developed within molecular groups (S2) |
+| 20 | `20_binary_additions.py` | binary benchmark additions B1 to B8 |
 
-Steps 10 to 16 are post hoc analyses (protocol version 1.2, Section 12). Run
-them after step 7; then re-run step 8 for the figures.
+Steps 10 to 16 are post hoc analyses (protocol version 1.2, Section 12) and
+steps 17 to 20 the version 2.0 analyses (Section 13). Run them after step 7;
+then re-run step 8 for the figures.
 
 Seeds are fixed (`src/config.py`, seed 20260628) and TensorFlow runs
-single-threaded with deterministic operations. A full run takes about four to
-five hours on two CPU cores. Resampling depth can be reduced for a quick check
+single-threaded with deterministic operations. A full run takes about eight to
+ten hours on two CPU cores. Resampling depth can be reduced for a quick check
 with `GSB_CV_REPEATS_PRIMARY`, `GSB_CV_REPEATS_SECONDARY` and `GSB_N_BOOTSTRAP`.
 
 ## Data

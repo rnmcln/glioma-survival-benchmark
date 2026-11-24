@@ -1,7 +1,7 @@
 """Post hoc analysis R4a (PROTOCOL.md, section 12): covariate-dependent
 inverse-probability-of-censoring weights for the primary binary analysis.
 
-The prespecified IPCW analysis used the marginal Kaplan-Meier censoring
+The original IPCW analysis used the marginal Kaplan-Meier censoring
 distribution. Here the censoring distribution is modelled by a Cox model for
 the censoring hazard (event = censored) on the set B predictors in the full
 TCGA cohort (median/mode imputation, one-hot encoding, ridge penalty 0.01).

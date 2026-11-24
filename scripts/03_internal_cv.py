@@ -1,6 +1,6 @@
 """Internal repeated cross-validation in TCGA for the 13 internal settings.
 
-  python scripts/03_internal_cv.py               prespecified analysis (class-weighted networks)
+  python scripts/03_internal_cv.py               original analysis (class-weighted networks)
   python scripts/03_internal_cv.py --unweighted  sensitivity analysis: networks without class weights
 """
 import sys
@@ -25,7 +25,7 @@ def main():
             internal_cv(tag, df, feats, horizon, reps, class_weight=False, only=MLPS, outdir=outdir)
         else:
             internal_cv(tag, df, feats, horizon, reps, include_ftt=(tag == "int_B_2y"), outdir=outdir)
-    log.info("internal CV complete (%s)", "unweighted" if unweighted else "prespecified")
+    log.info("internal CV complete (%s)", "unweighted" if unweighted else "class-weighted")
 
 
 if __name__ == "__main__":

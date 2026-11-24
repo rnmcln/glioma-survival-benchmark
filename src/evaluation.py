@@ -1,5 +1,5 @@
 """Performance metrics, calibration, decision curves, bootstrap inference and
-the prespecified decision rule."""
+the planned decision rule."""
 from __future__ import annotations
 
 import numpy as np

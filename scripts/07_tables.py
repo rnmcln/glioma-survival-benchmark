@@ -1,4 +1,4 @@
-"""Metrics, bootstrap intervals, the prespecified decision rule and decision
+"""Metrics, bootstrap intervals, the planned decision rule and decision
 curves for every setting; writes results/tables/*.csv and a JSON summary.
 
 Selection within each setting: the best of the three multilayer perceptrons and
