@@ -1,10 +1,10 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite it as below."
 title: "Neural networks and penalised regression for glioma survival prediction (analysis code and reproducibility materials)"
-version: 2.1.1
+version: 2.1.2
 date-released: "2026-11-26"
 license: MIT
-repository-code: "https://github.com/rnmcln/glioma-survival-benchmark/tree/v2.1.1"
+repository-code: "https://github.com/rnmcln/glioma-survival-benchmark/tree/v2.1.2"
 authors:
   - family-names: "Lawson McLean"
     given-names: "Aaron"
@@ -12,6 +12,9 @@ authors:
     affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
   - family-names: "Neumeister"
     given-names: "Anne"
+    affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
+  - family-names: "Meier"
+    given-names: "Tom"
     affiliation: "Department of Neurosurgery, Jena University Hospital, Friedrich Schiller University Jena"
   - family-names: "Kahr"
     given-names: "Julian"
