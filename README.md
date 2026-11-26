@@ -1,6 +1,6 @@
 # Neural networks and penalised regression for glioma survival prediction
 
-**TCGA-CDR reproducibility release v2.1.0.** TCGA-CDR benchmark of neural networks and penalised regression, with external evaluation in Gravendeel and REMBRANDT. Includes analysis and figure code, manuscript figures, and aggregate supplementary tables. The TCGA development cohort comprises 663 adults.
+**TCGA-CDR reproducibility release v2.1.1.** TCGA-CDR benchmark of neural networks and penalised regression, with external evaluation in Gravendeel and REMBRANDT. Includes analysis and figure code, manuscript figures, and aggregate supplementary tables. The TCGA development cohort comprises 663 adults.
 
 This release contains the code and aggregate results for the manuscript
 using overall survival from the [TCGA Pan-Cancer Clinical Data Resource
