@@ -1,4 +1,4 @@
 cohort,n_source,excluded_histology,excluded_no_outcome,excluded_age_under_18,n_analysed,gbm_grade_recoded_to_IV,panel_genes_available
-tcga,669,2,1,2,664,3,40
+tcga,669,2,2,2,663,3,40
 rembrandt,580,136,102,0,342,75,40
 gravendeel,284,16,4,2,262,0,40

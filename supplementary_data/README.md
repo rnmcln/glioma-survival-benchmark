@@ -1,0 +1,2 @@
+These aggregate CSVs correspond to the table index in 07_Supplementary_Material.docx. The endpoint audit is restricted to the current study and compares the legacy annotation with TCGA-CDR. Fitted-model tables use TCGA-CDR. Blank statistical cells indicate an inapplicable or unavailable quantity.
+Harrell C from raw scores pooled across internal folds was omitted. The earlier within-fold concordance analysis remains in survival_cindex.csv.

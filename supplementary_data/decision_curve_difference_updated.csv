@@ -1,0 +1,11 @@
+setting,comparison,threshold,delta_nb,lo,hi
+ext_gravendeel_B_2y,tf_compact - penalised_logistic (both intercept-updated),0.1,-0.0021533161068044704,-0.010777347114556482,0.003014642549526214
+ext_gravendeel_B_2y,tf_compact - penalised_logistic (both intercept-updated),0.2,-0.01356589147286813,-0.03779069767441856,0.007751937984496249
+ext_gravendeel_B_2y,tf_compact - penalised_logistic (both intercept-updated),0.3,-0.005537098560354392,-0.027131782945736427,0.014410299003322238
+ext_gravendeel_B_2y,tf_compact - penalised_logistic (both intercept-updated),0.4,0.016795865633075002,-0.01033591731266148,0.04392764857881143
+ext_gravendeel_B_2y,tf_compact - penalised_logistic (both intercept-updated),0.5,0.007751937984496027,-0.03100775193798444,0.046511627906976716
+ext_rembrandt_B_2y,tf_medium - penalised_logistic (both intercept-updated),0.1,0.0006516780710328351,0.0,0.00162919517758231
+ext_rembrandt_B_2y,tf_medium - penalised_logistic (both intercept-updated),0.2,0.0,0.0,0.0
+ext_rembrandt_B_2y,tf_medium - penalised_logistic (both intercept-updated),0.3,-0.02387934645999157,-0.04943443653121066,-0.0008273984080435645
+ext_rembrandt_B_2y,tf_medium - penalised_logistic (both intercept-updated),0.4,5.551115123125783e-17,-0.009775171065493693,0.010752688172043001
+ext_rembrandt_B_2y,tf_medium - penalised_logistic (both intercept-updated),0.5,0.0,0.0,0.0

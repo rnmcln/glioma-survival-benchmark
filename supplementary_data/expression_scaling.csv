@@ -1,0 +1,9 @@
+target,scheme,model,auroc,brier,calibration_slope
+gravendeel,within_cohort,penalised_logistic,0.805,0.279,0.527
+gravendeel,within_cohort,tf_regularised,0.816,0.208,0.618
+gravendeel,tcga_reference,penalised_logistic,0.803,0.183,0.772
+gravendeel,tcga_reference,tf_regularised,0.799,0.182,1.131
+rembrandt,within_cohort,penalised_logistic,0.74,0.304,0.395
+rembrandt,within_cohort,tf_regularised,0.773,0.225,0.454
+rembrandt,tcga_reference,penalised_logistic,0.753,0.237,0.699
+rembrandt,tcga_reference,tf_regularised,0.746,0.232,0.778

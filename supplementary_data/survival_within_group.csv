@@ -1,0 +1,13 @@
+group,row,model,n,deaths,deaths_by_h,horizon,td_auc,metric,delta,lo,hi
+idhwt,model,cox_linear,232.0,162.0,137.0,24.0,0.6668197739582552,,,,
+idhwt,model,cox_flexible,232.0,162.0,137.0,24.0,0.6685023719781417,,,,
+idhwt,model,cox_mlp,232.0,162.0,137.0,24.0,0.6634856226315975,,,,
+idhwt,difference,cox_mlp - cox_flexible,,,,24.0,,td_auc,-0.005016749346544132,-0.06987784117375866,0.07549207821414346
+idhwt,difference,cox_mlp - cox_linear,,,,24.0,,td_auc,-0.0033341513266577083,-0.06984163804998587,0.06287385428125054
+idhwt,difference,cox_flexible - cox_linear,,,,24.0,,td_auc,0.0016825980198864239,-0.062339592448140475,0.05446171551772816
+idhmut_noncodel,model,cox_linear,256.0,57.0,38.0,60.0,0.40750301887607937,,,,
+idhmut_noncodel,model,cox_flexible,256.0,57.0,38.0,60.0,0.4074812310246004,,,,
+idhmut_noncodel,model,cox_mlp,256.0,57.0,38.0,60.0,0.5000565146507768,,,,
+idhmut_noncodel,difference,cox_mlp - cox_flexible,,,,60.0,,td_auc,0.09257528362617647,-0.09689472736590211,0.23190295753639037
+idhmut_noncodel,difference,cox_mlp - cox_linear,,,,60.0,,td_auc,0.09255349577469747,-0.08296685981663271,0.2658653323880459
+idhmut_noncodel,difference,cox_flexible - cox_linear,,,,60.0,,td_auc,-2.1787851478993758e-05,-0.10504328861182816,0.12262512163702577

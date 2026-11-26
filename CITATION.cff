@@ -1,10 +1,10 @@
-cff-version: 2.0.0
+cff-version: 1.2.0
 message: "If you use this code, please cite it as below."
-title: "glioma-survival-benchmark: neural networks versus penalised regression for survival prediction in public glioma data"
-version: 2.0.0
-date-released: "2026-11-24"
+title: "Neural networks and penalised regression for glioma survival prediction (analysis code and reproducibility materials)"
+version: 2.1.0
+date-released: "2026-11-26"
 license: MIT
-repository-code: "https://github.com/rnmcln/glioma-survival-benchmark"
+repository-code: "https://github.com/rnmcln/glioma-survival-benchmark/tree/v2.1.0"
 authors:
   - family-names: "Lawson McLean"
     given-names: "Aaron"

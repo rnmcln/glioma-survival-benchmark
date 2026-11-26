@@ -1,9 +1,9 @@
 {
-  "title": "glioma-survival-benchmark: neural networks versus penalised regression for survival prediction in public glioma data",
+  "title": "Neural networks and penalised regression for glioma survival prediction (analysis code and reproducibility materials)",
   "upload_type": "software",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
-  "description": "Analysis code for a benchmark of penalised regression and neural networks for overall-survival prediction in adult diffuse glioma. The primary analysis compares linear and flexible penalised Cox regression with Cox-loss neural networks in all TCGA patients with nested tuning, evaluates discrimination within and between molecular groups, and transports the models to Gravendeel and REMBRANDT. Includes harmonisation of the public GlioVis data objects, the original binary benchmark, calibration and class-weighting analyses.",
+  "description": "TCGA-CDR benchmark of neural networks and penalised regression, with external evaluation in Gravendeel and REMBRANDT. Includes analysis and figure code, manuscript figures, and aggregate supplementary tables. The TCGA development cohort comprises 663 adults.",
   "creators": [
     {
       "name": "Lawson McLean, Aaron",
@@ -35,5 +35,13 @@
     "calibration",
     "external validation",
     "TCGA"
+  ],
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/rnmcln/glioma-survival-benchmark/tree/v2.1.0",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
   ]
 }

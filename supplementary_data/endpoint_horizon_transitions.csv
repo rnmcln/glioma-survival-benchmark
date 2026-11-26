@@ -1,0 +1,10 @@
+cohort,legacy,CDR,Freq
+Benchmark,censored_before_24m,censored_before_24m,244
+Benchmark,death_by_24m,censored_before_24m,0
+Benchmark,observed_alive_at_24m,censored_before_24m,0
+Benchmark,censored_before_24m,death_by_24m,2
+Benchmark,death_by_24m,death_by_24m,156
+Benchmark,observed_alive_at_24m,death_by_24m,0
+Benchmark,censored_before_24m,observed_alive_at_24m,14
+Benchmark,death_by_24m,observed_alive_at_24m,0
+Benchmark,observed_alive_at_24m,observed_alive_at_24m,247

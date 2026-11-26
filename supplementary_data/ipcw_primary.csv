@@ -1,0 +1,10 @@
+model,auroc_unweighted,auroc_ipcw,brier_unweighted,brier_ipcw
+base_rate,0.482,0.478,0.235,0.216
+logistic_age_grade,0.897,0.89,0.122,0.119
+penalised_logistic,0.915,0.91,0.106,0.104
+random_forest,0.905,0.9,0.11,0.108
+hist_gboost,0.898,0.893,0.116,0.114
+tf_compact,0.914,0.908,0.107,0.109
+tf_medium,0.907,0.901,0.115,0.114
+tf_regularised,0.911,0.905,0.108,0.11
+ft_transformer,0.895,0.888,0.121,0.122

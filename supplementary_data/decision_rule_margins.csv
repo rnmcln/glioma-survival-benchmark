@@ -1,0 +1,7 @@
+training,margin,n_settings,auroc_margin_met,all_conditions_met,settings_meeting_margin
+weighted,0.01,18,4,1,int_B_2y_lower;int_idhwt_1y;ext_gravendeel_B_2y;ext_rembrandt_C_2y
+weighted,0.02,18,3,0,int_B_2y_lower;int_idhwt_1y;ext_rembrandt_C_2y
+weighted,0.03,18,1,0,ext_rembrandt_C_2y
+unweighted,0.01,18,3,2,int_idhwt_1y;ext_gravendeel_B_2y;ext_rembrandt_C_2y
+unweighted,0.02,18,2,1,int_idhwt_1y;ext_rembrandt_C_2y
+unweighted,0.03,18,1,0,ext_rembrandt_C_2y

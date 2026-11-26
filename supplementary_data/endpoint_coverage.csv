@@ -1,0 +1,2 @@
+cohort,original_n,cdr_barcode_match,paired_n,cdr_zero,legacy_events,cdr_events,event_changed,legacy_censored_cdr_death,legacy_death_cdr_censored,horizon_state_changed,abs_time_diff_gt_2_days,abs_time_diff_gt_30_4375_days,median_abs_days
+Benchmark,664,664,663,2,239,245,6,6,0,16,75,23,0.90625

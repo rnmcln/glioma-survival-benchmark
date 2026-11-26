@@ -5,3 +5,7 @@ __pycache__/
 data/raw/
 results/
 *.ckpt.npz
+
+/data/processed/
+.env
+*key*.txt

@@ -1,0 +1,4 @@
+network,encoded_inputs,parameters,epochs_run,best_epoch
+tf_compact,14,1025,36,16
+tf_medium,14,12801,65,45
+tf_regularised,14,3073,32,12

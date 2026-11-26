@@ -1,0 +1,3 @@
+group,n,age_median,age_q1,age_q3,female_pct,gbm_n,astro_n,oligo_n,mixed_n,grade2_n,grade3_n,grade4_n,grade_missing_n,idh_mut_pct,codel_pct,mgmt_meth_pct,deaths_n,followup_median_months,labelled_2y,deaths_2y,event_rate_2y,censored_before_2y
+labelled at 2 years,419,49.0,36.2,62.0,40.1,124,116,112,67,121,145,124,29,57.7,21.4,72.4,245,29.8,419,158,0.377,0
+censored before 2 years,244,43.0,33.0,55.0,44.8,28,78,76,62,101,99,28,16,76.4,31.8,79.1,0,13.4,0,0,,244

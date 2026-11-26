@@ -1,0 +1,10 @@
+predictor_set,network,encoded_inputs,parameters,trainable_parameters,training_patients_per_fold,training_deaths_per_fold
+A,tf_compact,8,833,833,335,126
+A,tf_medium,8,12033,11777,335,126
+A,tf_regularised,8,2689,2689,335,126
+B,tf_compact,14,1025,1025,335,126
+B,tf_medium,14,12801,12545,335,126
+B,tf_regularised,14,3073,3073,335,126
+C,tf_compact,40,1857,1857,335,126
+C,tf_medium,40,16129,15873,335,126
+C,tf_regularised,40,4737,4737,335,126

@@ -1,0 +1,13 @@
+analysis,cohort,feature_set,model,n,events,cindex,sd,lo,hi,features
+internal,tcga,A,cox,663,245,0.838,0.028,,,age;sex;grade;histology
+internal,tcga,A,cox_penalised,663,245,0.836,0.026,,,age;sex;grade;histology
+external,gravendeel,A,cox,262,237,0.726,,0.69,0.76,age;sex;grade;histology
+external,gravendeel,A,cox_penalised,262,237,0.72,,0.684,0.754,age;sex;grade;histology
+external,rembrandt,A,cox,342,285,0.62,,0.588,0.653,grade;histology
+external,rembrandt,A,cox_penalised,342,285,0.62,,0.586,0.654,grade;histology
+internal,tcga,B,cox,663,245,0.849,0.027,,,age;sex;grade;histology;idh_status;codel_1p19q;mgmt_status
+internal,tcga,B,cox_penalised,663,245,0.851,0.024,,,age;sex;grade;histology;idh_status;codel_1p19q;mgmt_status
+external,gravendeel,B,cox,262,237,0.696,,0.663,0.727,age;sex;grade;histology;idh_status
+external,gravendeel,B,cox_penalised,262,237,0.689,,0.654,0.719,age;sex;grade;histology;idh_status
+external,rembrandt,B,cox,342,285,0.62,,0.588,0.653,grade;histology
+external,rembrandt,B,cox_penalised,342,285,0.62,,0.586,0.654,grade;histology
